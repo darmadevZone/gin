@@ -1,2 +1,6 @@
 /tmp
 /docker
+!/jsonplaceholderAPI
+/jsonplaceholderAPI
+
+.env

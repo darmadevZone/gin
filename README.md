@@ -57,3 +57,33 @@ func (i *ItemService) FindAll() (*[]models.Item, error){
 }
 
 ```
+
+
+## dockerの追加
+- postgres環境の構築
+- pgadmin(DB管理画面)の構築
+
+```shell
+$ docker compose up -d
+```
+
+## ORMを使う
+- ORMを学習する
+- パフォーマンスチューニングが難しい
+
+## DB Migration
+- カラムの変更
+- インデックスの適用
+- ロールバック機能がある
+- 開発段階でカラムの変更がある
+
+## DBの設定
+- `.env`ファイルをローカルに作成する
+
+```
+DB_HOST=localhost
+DB_USER=xxx
+DB_PASSWORD=xxx
+DB_NAME=xxx
+DB_PORT=5432
+```
