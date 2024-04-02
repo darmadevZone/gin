@@ -2,7 +2,7 @@ package main
 
 import (
 	"gin-market/mock/controllers"
-	"gin-market/mock/models"
+	"gin-market/mock/infra"
 	"gin-market/mock/repositories"
 	"gin-market/mock/services"
 
@@ -10,19 +10,15 @@ import (
 )
 
 func main() {
-	items := []models.Item{
-		{ID: 1, Name: "item1", Price: 100, Description: "desc1", SoldOut: false},
-		{ID: 2, Name: "item2", Price: 200, Description: "desc2", SoldOut: false},
-		{ID: 3, Name: "item3", Price: 300, Description: "desc3", SoldOut: false},
-	}
-
-	itemRepository := repositories.NewItemMemoryRepository(items)
-	ItemService := services.NewItemService(itemRepository)
-	itemController := controllers.NewItemController(ItemService)
+	infra.Initialize()
+	db := infra.SetupDB()
+	itemRepository := repositories.NewItemRepository(db)
+	itemService := services.NewItemService(itemRepository)
+	itemController := controllers.NewItemController(itemService)
 
 	r := gin.Default()
 	r.GET("/items", itemController.FindAll)
-	r.GET("/item/:id", itemController.FindById)
+	r.GET("/items/:id", itemController.FindById)
 	// r.GET("/json", func(ctx *gin.Context) {
 	// 	repository.JsonPlaceHolderRepository{}.JsonPlaceHolderDataFindAll()
 	// })
@@ -36,3 +32,24 @@ func main() {
 	r.Run("localhost:8080") // listen and serve on 0.0.0.0:8080
 }
 
+// func httpExample() {
+// 	h1 := func(w http.ResponseWriter, _ *http.Request) {
+// 		io.WriteString(w, "Hello from a HandleFunc #1!\n")
+// 	}
+// 	h2 := func(w http.ResponseWriter, _ *http.Request) {
+// 		io.WriteString(w, "Hello from a HandleFunc #2!\n")
+// 		http.Redirect(w, nil, "/404", http.StatusMovedPermanently)
+// 	}
+// 	notFound := http.NotFoundHandler()
+// 	client := http.Client{}
+// 	url, _ := url.Parse("")
+// 	request := http.Request{URL: url}
+// 	c, _ := client.Do(&request)
+// 	fmt.Print(c)
+
+// 	http.HandleFunc("/", h1)
+// 	http.HandleFunc("/endpoint", h2)
+// 	http.Handle("/404", notFound)
+
+// 	log.Fatal(http.ListenAndServe(":8080", nil))
+// }
