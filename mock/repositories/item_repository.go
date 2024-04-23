@@ -9,10 +9,10 @@ import (
 
 type IItemRepository interface {
 	FindAll() (*[]models.Item, error)
-	FindById(itemId uint) (*models.Item, error)
+	FindById(itemId uint, userId uint) (*models.Item, error)
 	Create(newItem models.Item) (*models.Item, error)
 	Update(updateItem models.Item) (*models.Item, error)
-	Delete(itemId uint) error
+	Delete(itemId uint, userId uint) error
 }
 
 // Memoryの設定
@@ -21,7 +21,7 @@ type ItemMemoryRepository struct {
 }
 
 // Delete implements IItemRepository.
-func (r *ItemMemoryRepository) Delete(itemId uint) error {
+func (r *ItemMemoryRepository) Delete(itemId uint, userId uint) error {
 	for i, v := range r.items {
 		if v.ID == itemId {
 			r.items = append(r.items[:i], r.items[i+1:]...)
@@ -50,7 +50,7 @@ func (r *ItemMemoryRepository) Create(newItem models.Item) (*models.Item, error)
 }
 
 // FindById implements IItemRepository.
-func (r *ItemMemoryRepository) FindById(itemId uint) (*models.Item, error) {
+func (r *ItemMemoryRepository) FindById(itemId uint, userId uint) (*models.Item, error) {
 	for _, v := range r.items {
 		if v.ID == itemId {
 			return &v, nil
@@ -82,13 +82,13 @@ func (i *ItemRepository) Create(newItem models.Item) (*models.Item, error) {
 }
 
 // Delete implements IItemRepository.
-func (i *ItemRepository) Delete(itemId uint) error {
-	delteItem, err := i.FindById(itemId)
+func (i *ItemRepository) Delete(itemId uint, userId uint) error {
+	delteItem, err := i.FindById(itemId, userId)
 	if err != nil {
 		return err
 	}
 
-	result := i.db.Delete(&delteItem)
+	result := i.db.Delete(&delteItem, userId)
 	if result.Error != nil {
 		return result.Error
 	}
@@ -106,9 +106,9 @@ func (i *ItemRepository) FindAll() (*[]models.Item, error) {
 }
 
 // FindById implements IItemRepository.
-func (i *ItemRepository) FindById(itemId uint) (*models.Item, error) {
+func (i *ItemRepository) FindById(itemId uint, userId uint) (*models.Item, error) {
 	var item models.Item
-	result := i.db.First(&item, itemId)
+	result := i.db.First(&item, "id = ? AND user_id = ?", itemId, userId)
 	if result.Error != nil {
 		if result.Error.Error() != "record not found" {
 			return nil, errors.New("item not found")
